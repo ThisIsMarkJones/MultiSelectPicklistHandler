@@ -1,0 +1,22 @@
+public class MultiSelectPicklistHandler {
+
+    // Define an inner class for inputs to the Invocable Method
+    public class Request {
+        @InvocableVariable(required=true label='Picklist Values')
+        public String picklistValues;
+    }
+
+    @InvocableMethod(label='Replace Semicolon with Line Break' description='Replaces all semicolons in a multi-select picklist with line breaks.')
+    public static List<String> replaceSemicolonWithLineBreak(List<Request> requests) {
+        List<String> result = new List<String>();
+        
+        for (Request req : requests) {
+            if (req.picklistValues != null) {
+                // Replace semicolons with line breaks
+                String formattedValue = req.picklistValues.replaceAll(';', '\n');
+                result.add(formattedValue);
+            }
+        }
+        return result;
+    }
+}
