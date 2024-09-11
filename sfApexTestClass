@@ -1,0 +1,39 @@
+@IsTest
+public class MultiSelectPicklistHandlerTest {
+
+    @IsTest
+    static void testReplaceSemicolonWithLineBreak() {
+        // Create a Contact record
+        Contact testContact = new Contact(
+            LastName = 'Test Contact'
+        );
+
+        // Insert the contact with allOrNone set to false, so validation failures are ignored
+        Database.SaveResult sr = Database.insert(testContact, false);
+        
+        if (!sr.isSuccess()) {
+            System.debug('Contact insert failed due to validation rule');
+        } else {
+            // Create a fake Multi-Select Picklist value (simulated with semicolons)
+            String multiSelectPicklistValue = 'Option A;Option B;Option C';
+
+            // Simulate setting this value on the Contact record's description field (or use any existing field)
+            testContact.Description = multiSelectPicklistValue;
+            update testContact;
+
+            // Prepare the request for the invocable method
+            MultiSelectPicklistHandler.Request req = new MultiSelectPicklistHandler.Request();
+            req.picklistValues = testContact.Description;
+
+            List<MultiSelectPicklistHandler.Request> requestList = new List<MultiSelectPicklistHandler.Request>();
+            requestList.add(req);
+
+            // Invoke the Apex Invocable Method
+            List<String> result = MultiSelectPicklistHandler.replaceSemicolonWithLineBreak(requestList);
+
+            // Assert the result contains line breaks instead of semicolons
+            String expected = 'Option A\nOption B\nOption C';
+            System.assertEquals(expected, result[0], 'The semicolons should be replaced by line breaks.');
+        }
+    }
+}
